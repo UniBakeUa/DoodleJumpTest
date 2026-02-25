@@ -1,69 +1,74 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
 namespace _Game.Core
 {
-    public class ModuleLoader : MonoBehaviour, IInitializable
+    public class ModuleLoader : IInitializable
     {
+        private readonly DiContainer _container;
+        private readonly LoaderSettings _settings;
+        
         public event Action OnLoadComplete;
-        [field:SerializeField] public LoaderType loaderType { get; private set; }
 
-        [SerializeField] private List<string> installerPaths = new();
-        private static readonly HashSet<Type> LoadedInstallers = new();
-        private DiContainer _container;
-        
-        public enum LoaderType
-        {
-            Bootstrap = 0,
-            MainMenu = 1,
-            Gameplay = 2
-        }
-        
-        [Inject]
-        public void Construct(DiContainer container)
+        public ModuleLoader(DiContainer container, LoaderSettings settings)
         {
             _container = container;
-            LoadAllModules();
+            _settings = settings;
         }
+
         public void Initialize()
         {
-            OnLoadComplete?.Invoke();
+            LoadAllModules();
         }
+
         private void LoadAllModules()
         {
-            foreach (var path in installerPaths)
+            if (_settings == null || _settings.InstallerPaths == null)
+            {
+                Debug.LogError("[ModuleLoader] LoaderSettings or InstallerPaths is null!");
+                OnLoadComplete?.Invoke();
+                return;
+            }
+
+            foreach (var path in _settings.InstallerPaths)
             {
                 if (string.IsNullOrEmpty(path)) continue;
-
+        
                 var installer = Resources.Load<ScriptableObjectInstaller>(path);
-                if (installer == null) continue;
-
-                Type type = installer.GetType();
-                if (LoadedInstallers.Contains(type)) continue;
+        
+                if (installer == null)
+                {
+                    Debug.LogWarning($"[ModuleLoader] Installer not found at: Resources/{path}");
+                    continue;
+                }
 
                 try
                 {
-                    _container.BindInterfacesAndSelfTo(type).FromInstance(installer).AsSingle();
-                    
-                    if (installer is IInstaller installerInterface)
+                    // Отримуємо тип самого інсталятора (наприклад, SceneLoaderInstaller)
+                    var installerType = installer.GetType();
+
+                    // ПЕРЕВІРКА: чи цей інсталятор вже був застосований?
+                    // Zenject зазвичай реєструє самі інсталятори в контейнері після виклику
+                    if (_container.HasBinding(installerType))
                     {
-                        _container.Inject(installer); 
-                        installerInterface.InstallBindings();
+                        Debug.LogWarning($"[ModuleLoader] {installerType.Name} вже зареєстрований. Пропускаю, щоб уникнути дублювання.");
+                        continue;
                     }
 
-                    LoadedInstallers.Add(type);
-                    Debug.Log($"[ModuleLoader] {type.Name} loaded!");
-                    
+                    _container.Inject(installer);
+                    installer.InstallBindings();
+
+                    Debug.Log($"<color=green>[ModuleLoader] {installerType.Name} installed successfully.</color>");
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"[ModuleLoader] Error: {e.Message}");
+                    Debug.LogError($"[ModuleLoader] Error installing {path}: {e.Message}");
                 }
             }
-        }
 
-       
+            Debug.Log("<color=cyan>[ModuleLoader] All modules loaded!</color>");
+            OnLoadComplete?.Invoke();
+        }
     }
 }
