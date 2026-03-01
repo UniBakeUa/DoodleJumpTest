@@ -65,7 +65,7 @@ namespace _Game.Content.Features.ScoreModule.Scripts
 
             RunData run = new RunData
             {
-                Date = DateTime.Now.ToString("dd.MM.yyyy HH:mm"),
+                Date = DateTime.Now.ToString("dd.MM"),
                 Score = CurrentScore
             };
 
