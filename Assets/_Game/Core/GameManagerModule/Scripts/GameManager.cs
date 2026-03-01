@@ -2,21 +2,24 @@ using System;
 using System.Collections.Generic;
 using _Game.Core.GameManagerModule.Scripts.States;
 using _Game.Core.StateMashineModule.Scripts;
-using UnityEngine;
 using Zenject;
 
 namespace _Game.Core.GameManagerModule.Scripts
 {
     public class GameManager : IInitializable, IDisposable
     {
+        public event Action GameOver;
+        
         private readonly SceneLoader _sceneLoader;
         private readonly ModuleLoader _moduleLoader;
+        private readonly IInstantiator _instantiator;
         public StateMachineBehaviour<StateBase> GameStateMachine { get; private set; }
 
-        public GameManager(SceneLoader sceneLoader, ModuleLoader moduleLoader)
+        public GameManager(SceneLoader sceneLoader, ModuleLoader moduleLoader, IInstantiator instantiator)
         {
             _sceneLoader = sceneLoader;
             _moduleLoader = moduleLoader;
+            _instantiator = instantiator;
         }
         public void Initialize()
         {
@@ -24,14 +27,11 @@ namespace _Game.Core.GameManagerModule.Scripts
 
             GameStateMachine.SetStates(new List<StateBase>
             {
-                new LoadingState(),
-                new MenuState(),
-                new PausedState(),
-                new PlayingState(),
-                new GameoverState(),
-                new VictoryState()
+                _instantiator.Instantiate<LoadingState>(),
             });
 
+            GameStateMachine.Enter<LoadingState>();
+            
             _moduleLoader.OnLoadComplete += OnModulesLoaded;
         }
 
@@ -42,19 +42,43 @@ namespace _Game.Core.GameManagerModule.Scripts
 
         private void OnModulesLoaded()
         {
-            GoToMenu();
+            GameStateMachine.SetStates(new List<StateBase>
+            {
+                _instantiator.Instantiate<LoadingState>(),
+                _instantiator.Instantiate<MenuState>(),
+                _instantiator.Instantiate<PausedState>(),
+                _instantiator.Instantiate<PlayingNewState>(),
+                _instantiator.Instantiate<PlayingState>(),
+                _instantiator.Instantiate<GameoverState>(),
+                _instantiator.Instantiate<VictoryState>()
+            });
+            
+            int currentSceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+            
+            if (currentSceneIndex == 0)
+            {
+                GoToMenu();
+            }
+            else if (currentSceneIndex == 1)
+            {
+                GameStateMachine.Enter<MenuState>();
+            }
+            else if (currentSceneIndex == 2)
+            {
+                GameStateMachine.Enter<PlayingNewState>();
+            }
         }
 
-        public void GoToMenu()
+        public async void GoToMenu()
         {
+            await _sceneLoader.LoadScene(1);
             GameStateMachine.Enter<MenuState>();
-            _sceneLoader.LoadScene(1); 
         }
 
-        public void StartNewGame()
+        public async void StartGame()
         {
-            GameStateMachine.Enter<PlayingState>();
-            _sceneLoader.LoadScene(2);
+            await _sceneLoader.LoadScene(2);
+            GameStateMachine.Enter<PlayingNewState>();
         }
 
         public void PauseGame()
@@ -70,8 +94,12 @@ namespace _Game.Core.GameManagerModule.Scripts
             GameStateMachine.Enter<PlayingState>();
         }
 
-        public void LoseGame() => GameStateMachine.Enter<GameoverState>();
-        
+        public void LoseGame()
+        {
+            GameStateMachine.Enter<GameoverState>();
+            GameOver?.Invoke();
+        }
+
         public void WinGame() => GameStateMachine.Enter<VictoryState>();
         public void Dispose()
         {

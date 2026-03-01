@@ -5,7 +5,7 @@ using Zenject;
 
 namespace _Game.Core.InputSystemModule.Scripts
 {
-    public class InputManager : IInitializable, IDisposable
+    public class InputManager : IInitializable, IDisposable, ITickable
     {
         public event Action<Vector2> OnSimpleClick;
         public event Action<Vector2> OnDragStart;
@@ -32,7 +32,6 @@ namespace _Game.Core.InputSystemModule.Scripts
         {
             GameInput.Gameplay.Click.started += OnPressStarted;
             GameInput.Gameplay.Click.canceled += OnPressCanceled;
-            GameInput.Gameplay.Point.performed += OnPointerMoved;
         }
 
         private void OnPressStarted(InputAction.CallbackContext ctx)
@@ -40,21 +39,6 @@ namespace _Game.Core.InputSystemModule.Scripts
             _startMousePosition = GetPointerPosition();
             _isPotentialDrag = true;
             _isDragging = false;
-        }
-        private void OnPointerMoved(InputAction.CallbackContext ctx)
-        {
-            if (!_isPotentialDrag) return;
-
-            Vector2 currentPos = ctx.ReadValue<Vector2>();
-
-            if (!_isDragging)
-            {
-                CheckForDragStart(currentPos);
-            }
-            else
-            {
-                OnDragging?.Invoke(currentPos);
-            }
         }
 
         private void CheckForDragStart(Vector2 currentPos)
@@ -122,8 +106,24 @@ namespace _Game.Core.InputSystemModule.Scripts
         {
             GameInput.Gameplay.Click.started -= OnPressStarted;
             GameInput.Gameplay.Click.canceled -= OnPressCanceled;
-            GameInput.Gameplay.Point.performed -= OnPointerMoved;
             GameInput.Dispose();
+        }
+
+        public void Tick()
+        {
+            if (_isPotentialDrag)
+            {
+                Vector2 currentPos = GetPointerPosition();
+
+                if (!_isDragging)
+                {
+                    CheckForDragStart(currentPos);
+                }
+                else
+                {
+                    OnDragging?.Invoke(currentPos);
+                }
+            }
         }
     }
 }

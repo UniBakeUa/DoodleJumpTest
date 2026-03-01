@@ -59,7 +59,7 @@ namespace _Game.Core
                     _container.Inject(installer);
                     installer.InstallBindings();
 
-                    Debug.Log($"<color=green>[ModuleLoader] {installerType.Name} installed successfully.</color>");
+                    Debug.Log($"[ModuleLoader] {installerType.Name} installed successfully.");
                 }
                 catch (Exception e)
                 {
@@ -67,7 +67,7 @@ namespace _Game.Core
                 }
             }
 
-            Debug.Log("<color=cyan>[ModuleLoader] All modules loaded!</color>");
+            Debug.Log("[ModuleLoader] All modules loaded!");
             OnLoadComplete?.Invoke();
         }
     }

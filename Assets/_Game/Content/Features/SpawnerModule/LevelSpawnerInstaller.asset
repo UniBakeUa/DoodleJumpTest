@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e7cfee1f234fd8965164c1a170d214, type: 3}
+  m_Name: LevelSpawnerInstaller
+  m_EditorClassIdentifier: 
+  levelConfig: {fileID: 11400000, guid: aa5f053a8dd5ee34e8ffc6e35d5ed6f9, type: 2}
+  platformPrefabs:
+  - {fileID: 3126731546897802304, guid: 8b4b5ea77362fb54d923102b9c164375, type: 3}
+  - {fileID: 407122864045664833, guid: b3eb55d127154de4281cc7e1b210e857, type: 3}

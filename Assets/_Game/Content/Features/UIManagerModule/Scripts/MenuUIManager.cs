@@ -1,15 +1,16 @@
 using _Game.Core;
+using _Game.Core.GameManagerModule.Scripts;
 using UnityEngine;
 using Zenject;
 
 namespace _Game.Content.Features.UIManagerModule.Scripts
 {
-    public class UIManager : MonoBehaviour
+    public class MenuUIManager : MonoBehaviour
     {
         [SerializeField] private Canvas recordsCanvas;
         [SerializeField] private Canvas privacyPolicyCanvas;
         
-        [Inject] private SceneLoader _sceneLoader;
+        [Inject] private GameManager _gameManager;
 
         public void OpenMenu()
         {
@@ -18,7 +19,7 @@ namespace _Game.Content.Features.UIManagerModule.Scripts
         }
         public void StartGame() //button event
         {
-            _sceneLoader.LoadScene(2);
+            _gameManager.StartGame();
         }
         public void OpenRecords() //button event
         {

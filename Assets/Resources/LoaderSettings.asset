@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: LoaderSettings
   m_EditorClassIdentifier: 
   InstallerPaths:
-  - Installers/InputModuleInstaller
+  - Installers/TrackingPointInstaller
+  - Installers/PlayerSpawnerInstaller

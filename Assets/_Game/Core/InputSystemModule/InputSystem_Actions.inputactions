@@ -28,28 +28,6 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "7d8e6eb3-008d-4a3f-9c7c-47cdf3889f4b",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Click",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d6666e14-42a0-4f25-8e8c-059104dbc0cd",
-                    "path": "<Touchscreen>/primaryTouch/tap",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Click",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "b84f51b3-7693-4316-a0bc-7c209e3f5807",
                     "path": "<Pointer>/position",
                     "interactions": "",
@@ -61,12 +39,12 @@
                 },
                 {
                     "name": "",
-                    "id": "24c3a132-0ec9-4508-832e-4e73d34fb336",
-                    "path": "<Touchscreen>/primaryTouch/position",
+                    "id": "310671b8-d6fe-4733-a609-0d5a65fcf780",
+                    "path": "<Pointer>/press",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Point",
+                    "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

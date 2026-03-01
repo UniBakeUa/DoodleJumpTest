@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -5,15 +6,16 @@ namespace _Game.Core
 {
     public class SceneLoader
     {
-        public void LoadScene(string sceneName)
+        public async Task LoadScene(int sceneId)
         {
-            SceneManager.LoadScene(sceneName);
-        }
-        public void LoadScene(int sceneId)
-        {
-            SceneManager.LoadScene(sceneId);
+            var operation = SceneManager.LoadSceneAsync(sceneId);
             
-            Debug.Log($"[SceneLoader] {sceneId} loaded!");
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+            
+            Debug.Log($"[SceneLoader] {sceneId} loaded");
         }
     }
 }
